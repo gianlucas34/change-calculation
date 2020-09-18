@@ -1,32 +1,39 @@
 const coins = [100, 50, 25, 10, 5, 1];
+const lastIndex = coins[coins.length - 1] === 1
+    ? coins[coins.length - 2]
+    : coins[coins.length - 1];
+let msg = '';
 
 const changeCalculation = (purchasePrice, paidPrice) => {
-    let change = paidPrice - purchasePrice;
-    let msg = '';
-    let lastIndex = coins[coins.length - 1] === 1
-        ? coins[coins.length - 2]
-        : coins[coins.length - 1];
+    const change = paidPrice - purchasePrice;
 
-    if (change > 0) {
-        for (x in coins) {
-            if (change >= coins[x]) {
-                const amount = parseInt(change / coins[x]);
+    const result =
+        [
+            [change => { return change > 0 }, coinsCalculation(change)],
+            [change => { return change < 0 }, 'Não é possível calcular troco negativo!'],
+            [change => { return change === 0 }, 'Não é necessário troco!']
+        ].find(array => {
+            return array[0](change);
+        });
 
-                msg += amount + " moeda de " + coins[x] + " centavos\n";
+    return result[1];
+}
 
-                change -= (amount * coins[x]);
-            }
+const coinsCalculation = change => {
+    for (x in coins) {
+        if (change >= coins[x]) {
+            const amount = parseInt(change / coins[x]);
 
-            if (change < lastIndex && change > 0) {
-                return 'Não temos troco para este valor... Desculpe!';
-            }
+            msg += amount + " moeda de " + coins[x] + " centavos\n";
+
+            change -= (amount * coins[x]);
         }
-        return msg;
-    } else if (change < 0) {
-        return 'Não é possível calcular troco negativo!';
-    } else {
-        return 'Não é necessário troco!';
+
+        if (change < lastIndex && change > 0) {
+            return 'Não temos troco para este valor... Desculpe!';
+        }
     }
+    return msg;
 }
 
 exports.changeCalculation = changeCalculation;
